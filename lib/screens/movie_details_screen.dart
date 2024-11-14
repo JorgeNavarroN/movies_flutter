@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:movies_app/models/movie.dart';
+import 'package:movies_app/providers/favorites_provider.dart';
+import 'package:provider/provider.dart';
 
 class MovieDetailsScreen extends StatelessWidget {
   final Movie movie;
@@ -11,6 +13,7 @@ class MovieDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final favoritesProvider = Provider.of<FavoritesProvider>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(movie.title),
@@ -44,7 +47,20 @@ class MovieDetailsScreen extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 16,
                 ),
-              )
+              ),
+              const SizedBox(height: 20),
+              IconButton(
+                  onPressed: () {
+                    favoritesProvider.toggleFavorite(movie);
+                  },
+                  icon: Icon(
+                    favoritesProvider.isFavorite(movie)
+                        ? Icons.favorite
+                        : Icons.favorite_border,
+                    color: favoritesProvider.isFavorite(movie)
+                        ? Colors.red
+                        : Colors.grey,
+                  ))
             ],
           ),
         ),
