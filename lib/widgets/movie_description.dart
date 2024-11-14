@@ -5,10 +5,14 @@ class MovieDescription extends StatelessWidget {
     super.key,
     required this.title,
     required this.description,
+    required this.voteAverage,
+    required this.voteCount,
   });
 
   final String title;
   final String description;
+  final String voteAverage;
+  final String voteCount;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +29,28 @@ class MovieDescription extends StatelessWidget {
           Text(
             description,
             style: const TextStyle(fontSize: 12.0),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              const Icon(
+                Icons.star,
+                color: Colors.yellow,
+                size: 30.0,
+              ),
+              Text(
+                voteAverage,
+                style: const TextStyle(
+                    fontWeight: FontWeight.w700, fontSize: 18.0),
+              ),
+              const Text(
+                "/10",
+                style: TextStyle(fontSize: 14.0),
+              ),
+            ],
+          )
         ],
       ),
     );
