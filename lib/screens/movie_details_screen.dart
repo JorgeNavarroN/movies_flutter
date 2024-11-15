@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:movies_app/models/movie.dart';
 import 'package:movies_app/providers/favorites_provider.dart';
+import 'package:movies_app/widgets/vote_average_movie.dart';
+import 'package:movies_app/widgets/vote_count_movie.dart';
 import 'package:provider/provider.dart';
 
 class MovieDetailsScreen extends StatelessWidget {
+  final String imageEndpoint = dotenv.env['IMAGE_ENDPOINT'] ?? '';
   final Movie movie;
 
-  const MovieDetailsScreen({
+  MovieDetailsScreen({
     super.key,
     required this.movie,
   });
@@ -26,11 +30,33 @@ class MovieDetailsScreen extends StatelessWidget {
             children: [
               if (movie.posterPath != '')
                 Image.network(
-                  'https://image.tmdb.org/t/p/w500${movie.posterPath}',
+                  '$imageEndpoint${movie.posterPath}',
                   fit: BoxFit.cover,
                 )
               else
                 Image.asset('assets/images/placeholder.png'),
+              const SizedBox(height: 20),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      VoteAverageMovie(
+                        movie: movie,
+                        fontSizeText: 24.0,
+                        sizeIcon: 44.0,
+                      ),
+                      VoteCountMovie(
+                        movie: movie,
+                        fontSizeText: 24.0,
+                        sizeIcon: 44.0,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
               const SizedBox(height: 20),
               Text(
                 movie.title,

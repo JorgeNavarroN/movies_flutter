@@ -38,10 +38,7 @@ class MovieCard extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(2.0),
               child: MovieDescription(
-                title: movie.title,
-                description: movie.description,
-                voteAverage: movie.voteAverage.toStringAsFixed(1),
-                voteCount: movie.voteCount.toStringAsFixed(1),
+                movie: movie,
               ),
             ),
           ),

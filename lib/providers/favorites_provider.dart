@@ -17,11 +17,9 @@ class FavoritesProvider with ChangeNotifier {
 
   void toggleFavorite(Movie movie) {
     if (isFavorite(movie)) {
-      print("ES FAVORITO!!");
       _favorites.removeWhere((element) => element.id == movie.id);
       deleteFavoriteMovie(movie);
     } else {
-      print("NO ES FAVORITO :C");
       _favorites.add(movie);
       saveFavoritesMovies(movie);
     }
