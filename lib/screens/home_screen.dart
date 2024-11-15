@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:movies_app/main.dart';
 import 'package:movies_app/screens/movie_details_screen.dart';
 import 'package:movies_app/services/api_services.dart';
 import 'package:movies_app/models/movie.dart';
-import 'package:movies_app/widgets/movie_description.dart';
-import 'package:movies_app/widgets/bottom_sheet.dart';
+import 'package:movies_app/widgets/buscador.dart';
+import 'package:movies_app/widgets/movie_card.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,13 +19,9 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _controller = TextEditingController();
   final apiService = ApiServices();
   List<Movie> _movies = [];
-  String beforeQuery = '';
   String query = '';
   int currentPage = 1;
   bool isLoading = false;
-
-  String? selectedGenre;
-  String? selectedYear;
 
   final ScrollController _scrollController = ScrollController();
 
@@ -32,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    loadMovies();
+    // loadMovies();
   }
 
   void _onScroll() {
@@ -40,8 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
             _scrollController.position.maxScrollExtent - 200 &&
         !isLoading &&
         currentPage <= apiService.totalPages) {
-      print("Cargando mas peliculas... Pagina: $currentPage");
-      loadMovies(); // Cargar más películas al final de la lista
+      loadMovies();
     }
   }
 
@@ -53,18 +49,15 @@ class _HomeScreenState extends State<HomeScreen> {
     });
     loadMovies(genre: genre, year: year, minCalif: minCalif);
     _scrollController.jumpTo(0);
-    beforeQuery = query;
   }
 
   void loadMovies({String? genre, int? year, double? minCalif}) async {
     if (isLoading && currentPage > 1) return;
-    setState(() {
-      isLoading = true;
-      query = _controller.text;
-    });
-
     if (query.isNotEmpty) {
-      print("QUERY: $query");
+      setState(() {
+        isLoading = true;
+        query = _controller.text;
+      });
       try {
         var movies = await apiService.searchMovieWithFilters(
           query,
@@ -79,19 +72,13 @@ class _HomeScreenState extends State<HomeScreen> {
           currentPage++;
         });
       } catch (error) {
-        print("Error al cargar películas: $error");
+        dialogService.showAlert("Error al cargar películas: $error");
       } finally {
         setState(() => isLoading = false);
       }
+    } else {
+      dialogService.showAlert("El campo está vació. Rellene el campo.");
     }
-  }
-
-  void _openFilterDialog(BuildContext context) {
-    showModalBottomSheet(
-        context: context,
-        builder: (context) {
-          return Filters(onPress: _searchMovies);
-        });
   }
 
   @override
@@ -110,93 +97,53 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    decoration: InputDecoration(
-                      labelText: 'Buscar película',
-                      border: const OutlineInputBorder(),
-                      icon: IconButton(
-                        onPressed: _searchMovies,
-                        icon: const Icon(Icons.search),
-                      ),
-                    ),
-                  ),
-                ),
-                IconButton(
-                  onPressed: () => _openFilterDialog(context),
-                  icon: const Icon(Icons.filter_list),
-                ),
-              ],
-            ),
+            Buscador(controller: _controller, searchFunction: _searchMovies),
             Expanded(
-                child: ListView.builder(
-                    controller: _scrollController,
-                    itemCount: _movies.length + 1,
-                    itemBuilder: (context, index) {
-                      if (_movies.isEmpty) return null;
-                      if (index == _movies.length) {
-                        return isLoading
-                            ? const Center(child: CircularProgressIndicator())
-                            : const SizedBox();
-                      }
-                      final movie = _movies[index];
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => MovieDetailsScreen(
-                                movie: movie,
-                              ),
+              child: ListView.builder(
+                controller: _scrollController,
+                itemCount: _movies.length + 1,
+                itemBuilder: (context, index) {
+                  if (_movies.isEmpty) {
+                    return isLoading
+                        ? const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(40),
+                              child: CircularProgressIndicator(),
                             ),
-                          );
-                        },
-                        child: Card(
-                          elevation: 3,
-                          margin: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 12),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ClipRRect(
-                                borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(8.0),
-                                  bottomLeft: Radius.circular(8.0),
-                                ),
-                                child: SizedBox(
-                                  height: 150,
-                                  width: 100,
-                                  child: movie.posterPath != ''
-                                      ? Image.network(
-                                          'https://image.tmdb.org/t/p/w500${movie.posterPath}',
-                                          fit: BoxFit.cover)
-                                      : Image.asset(
-                                          'assets/images/placeholder.png',
-                                        ),
-                                ),
-                              ),
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(2.0),
-                                  child: MovieDescription(
-                                    title: movie.title,
-                                    description: movie.description,
-                                    voteAverage:
-                                        movie.voteAverage.toStringAsFixed(1),
-                                    voteCount:
-                                        movie.voteCount.toStringAsFixed(1),
-                                  ),
-                                ),
-                              ),
-                            ],
+                          )
+                        : const Center(
+                            child: Padding(
+                            padding: EdgeInsets.all(40),
+                            child: Text(
+                              'No hay películas a mostrar',
+                              textAlign: TextAlign.center,
+                            ),
+                          ));
+                  }
+                  if (index == _movies.length) {
+                    return isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : const SizedBox();
+                  }
+                  final movie = _movies[index];
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MovieDetailsScreen(
+                            movie: movie,
                           ),
                         ),
                       );
-                    }))
+                    },
+                    child: MovieCard(
+                      movie: movie,
+                    ),
+                  );
+                },
+              ),
+            )
           ],
         ),
       ),

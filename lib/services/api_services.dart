@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:movies_app/models/genre.dart';
@@ -22,10 +21,8 @@ class ApiServices {
       Uri.parse('$_baseUrl/search/movie?query=$query'),
       headers: userHeaders,
     );
-    print("Codigo de estado: ${response.statusCode}");
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      print(data);
       List<Movie> movies = (data['results'] as List)
           .map((movieData) => Movie.fromJson(movieData))
           .toList();
