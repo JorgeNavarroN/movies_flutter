@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:movies_app/models/genre.dart';
 import 'package:movies_app/models/movie.dart';
 
 class ApiServices {
@@ -35,16 +37,16 @@ class ApiServices {
 
   Future<List<Movie>> searchMovieWithFilters(
     String query, {
+    int? year,
     String? genre,
-    String? year,
-    double? rating,
+    double? minRating,
     int page = 1,
   }) async {
     String url = '$_baseUrl/search/movie?query=$query&page=$page';
 
     if (genre != null) url += '&genre=$genre';
     if (year != null) url += '&year=$year';
-    if (rating != null) url += '&rating.gte=$rating';
+    if (minRating != null) url += 'vote_average.gte=$minRating';
 
     try {
       final response = await http.get(Uri.parse(url), headers: userHeaders);
@@ -60,6 +62,26 @@ class ApiServices {
       }
     } catch (error) {
       print('Error en la búsqueda: $error');
+      return [];
+    }
+  }
+
+  Future<List<Genre>> getGenresMovies() async {
+    String url = 'https://api.themoviedb.org/3/genre/movie/list';
+
+    try {
+      final response = await http.get(Uri.parse(url), headers: userHeaders);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        List<Genre> genres = (data['genres'] as List)
+            .map((genreData) => Genre.fromJson(genreData))
+            .toList();
+        return genres;
+      } else {
+        throw Exception('Error al cargar géneros de películas');
+      }
+    } catch (error) {
+      print('Error al cargar géneros: $error');
       return [];
     }
   }

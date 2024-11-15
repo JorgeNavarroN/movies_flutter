@@ -3,6 +3,7 @@ import 'package:movies_app/screens/movie_details_screen.dart';
 import 'package:movies_app/services/api_services.dart';
 import 'package:movies_app/models/movie.dart';
 import 'package:movies_app/widgets/movie_description.dart';
+import 'package:movies_app/widgets/bottom_sheet.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -44,16 +45,18 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _searchMovies() async {
-    setState(() => query = _controller.text);
-    currentPage = 1;
-    setState(() => _movies = []);
-    loadMovies();
+  void _searchMovies({String? genre, int? year, double? minCalif}) async {
+    setState(() {
+      query = _controller.text;
+      currentPage = 1;
+      _movies = [];
+    });
+    loadMovies(genre: genre, year: year, minCalif: minCalif);
     _scrollController.jumpTo(0);
     beforeQuery = query;
   }
 
-  void loadMovies() async {
+  void loadMovies({String? genre, int? year, double? minCalif}) async {
     if (isLoading && currentPage > 1) return;
     setState(() {
       isLoading = true;
@@ -65,8 +68,9 @@ class _HomeScreenState extends State<HomeScreen> {
       try {
         var movies = await apiService.searchMovieWithFilters(
           query,
-          genre: selectedGenre,
-          year: selectedYear,
+          genre: genre,
+          minRating: minCalif,
+          year: year,
           page: currentPage,
         );
         // }
@@ -80,6 +84,14 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() => isLoading = false);
       }
     }
+  }
+
+  void _openFilterDialog(BuildContext context) {
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return Filters(onPress: _searchMovies);
+        });
   }
 
   @override
@@ -98,71 +110,27 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            TextField(
-              controller: _controller,
-              decoration: const InputDecoration(
-                labelText: 'Buscar película',
-                border: OutlineInputBorder(),
-              ),
-            ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                DropdownButton(
-                  hint: const Text('Género'),
-                  value: selectedGenre,
-                  items:
-                      <String>['Accion', 'Drama', 'Comedy'].map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (String? value) {
-                    setState(() {
-                      selectedGenre = value;
-                    });
-                  },
-                ),
-                DropdownButton<String>(
-                  hint: const Text('Año'),
-                  value: selectedYear,
-                  items: <String>['2022', '2021', '2020'] // Ejemplo de años
-                      .map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedYear = value;
-                    });
-                  },
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      selectedYear = null;
-                      selectedGenre = null;
-                    });
-                  },
-                  child: const Icon(
-                    Icons.delete,
-                    color: Colors.red,
-                    size: 30.0,
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    decoration: InputDecoration(
+                      labelText: 'Buscar película',
+                      border: const OutlineInputBorder(),
+                      icon: IconButton(
+                        onPressed: _searchMovies,
+                        icon: const Icon(Icons.search),
+                      ),
+                    ),
                   ),
-                )
+                ),
+                IconButton(
+                  onPressed: () => _openFilterDialog(context),
+                  icon: const Icon(Icons.filter_list),
+                ),
               ],
-            ),
-            ElevatedButton.icon(
-              onPressed: _searchMovies,
-              icon: const Icon(
-                Icons.search,
-                color: Colors.blue,
-                size: 30.0,
-              ),
-              label: const Text('Buscar'),
             ),
             Expanded(
                 child: ListView.builder(
