@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:movies_app/providers/favorites_provider.dart';
 import 'package:movies_app/services/dialog_service.dart';
@@ -10,7 +9,6 @@ import 'models/movie.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final dialogService = DialogService(navigatorKey);
-
 void main() async {
   dotenv.load(fileName: ".env");
   await Hive.initFlutter();

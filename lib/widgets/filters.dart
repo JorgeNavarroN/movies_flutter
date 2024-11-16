@@ -14,7 +14,7 @@ class Filters extends StatefulWidget {
 }
 
 class _Filters extends State<Filters> {
-  final apiService = ApiServices();
+  final _apiService = ApiServices();
   String? selectedGenre;
   int? selectedYear;
   double selectedMinCalif = 0.0;
@@ -27,7 +27,7 @@ class _Filters extends State<Filters> {
   }
 
   void _loadGenres() async {
-    final genres = await apiService.getGenresMovies();
+    final genres = await _apiService.getGenresMovies();
     setState(() {
       _genres = genres;
     });
