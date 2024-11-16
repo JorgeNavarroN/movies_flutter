@@ -33,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onScroll() {
+    // Valida a cuantos pixeles está el scroll del final de la lista (200 px)
     if (_scrollController.position.pixels >=
             _scrollController.position.maxScrollExtent - 200 &&
         !isLoading &&
