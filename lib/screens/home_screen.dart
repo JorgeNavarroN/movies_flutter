@@ -113,12 +113,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           )
                         : const Center(
                             child: Padding(
-                            padding: EdgeInsets.all(40),
-                            child: Text(
-                              'No hay películas a mostrar',
-                              textAlign: TextAlign.center,
+                              padding: EdgeInsets.all(40),
+                              child: Text(
+                                'No hay películas a mostrar',
+                                textAlign: TextAlign.center,
+                              ),
                             ),
-                          ));
+                          );
                   }
                   if (index == _movies.length) {
                     return isLoading

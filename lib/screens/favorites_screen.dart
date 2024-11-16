@@ -16,45 +16,49 @@ class FavoritesScreen extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView.builder(
-                itemCount: favoritesProvider.favorites.length + 1,
-                itemBuilder: (context, index) {
-                  if (favoritesProvider.favorites.isEmpty) {
-                    return const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(40),
-                        child: Text(
-                          'No hay películas favoritas',
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    );
-                  }
-                  if (index == favoritesProvider.favorites.length) {
-                    return const SizedBox();
-                  }
-                  final movie = favoritesProvider.favorites[index];
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => MovieDetailsScreen(
-                            movie: movie,
-                          ),
-                        ),
-                      );
-                    },
-                    child: MovieCard(movie: movie),
-                  );
-                },
+        child: favoritesProvider.isLoading
+            ? const Center(
+                child: CircularProgressIndicator(),
+              )
+            : Column(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: favoritesProvider.favorites.length,
+                      itemBuilder: (context, index) {
+                        if (favoritesProvider.favorites.isEmpty) {
+                          return const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(40),
+                              child: Text(
+                                'No hay películas favoritas',
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          );
+                        }
+                        if (index == favoritesProvider.favorites.length) {
+                          return const SizedBox();
+                        }
+                        final movie = favoritesProvider.favorites[index];
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MovieDetailsScreen(
+                                  movie: movie,
+                                ),
+                              ),
+                            );
+                          },
+                          child: MovieCard(movie: movie),
+                        );
+                      },
+                    ),
+                  )
+                ],
               ),
-            )
-          ],
-        ),
       ),
     );
   }

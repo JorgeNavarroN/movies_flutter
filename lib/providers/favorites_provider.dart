@@ -4,6 +4,7 @@ import 'package:movies_app/services/save_service.dart';
 
 class FavoritesProvider with ChangeNotifier {
   final List<Movie> _favorites = [];
+  bool isLoading = true;
   List<Movie> get favorites => _favorites;
 
   FavoritesProvider() {
@@ -11,8 +12,12 @@ class FavoritesProvider with ChangeNotifier {
   }
 
   Future<void> _loadFavorites() async {
+    isLoading = true;
+    notifyListeners();
     List<Movie> loadedMovies = await getFavoritesMovies();
     _favorites.addAll(loadedMovies);
+    isLoading = false;
+    notifyListeners();
   }
 
   void toggleFavorite(Movie movie) {
